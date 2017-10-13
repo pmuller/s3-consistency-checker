@@ -1,0 +1,19 @@
+# Python
+*.pyc
+.eggs/
+*.egg-info
+dist/
+# vim
+*.sw*
+# Testing
+.cache/
+junit.xml
+.tox/
+# virtualenv
+.env/
+# coverage.py
+.coverage
+htmlcov/
+coverage.xml
+# doc
+doc/_build
