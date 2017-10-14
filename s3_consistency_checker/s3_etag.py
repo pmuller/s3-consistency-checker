@@ -13,7 +13,9 @@ def run(command, **kwargs):
     command = command.split() if isinstance(command, str) else command
     process = Popen(command, stdout=PIPE, stderr=PIPE, **kwargs)
     stdout, stderr = process.communicate()
-    assert process.returncode == 0
+    assert process.returncode == 0, \
+        'Command %r exited with code %s: stdout=%r stderr=%r' % (
+            command, process.returncode, stdout, stderr)
     return stdout, stderr
 
 
