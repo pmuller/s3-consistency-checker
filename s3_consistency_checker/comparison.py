@@ -1,13 +1,10 @@
 """Comparison of files between local file system and S3 bucket.
 """
 import logging
-from hashlib import md5
 from os import stat
 
 from boto3 import Session
 from botocore.exceptions import ClientError
-
-from s3_consistency_checker import s3_etag
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,8 +34,8 @@ def add_prefix(string, prefix=None):
 
 
 def compare(  # pylint: disable=too-many-arguments
-        filepath, md5_executor, local_prefix, s3_bucket,
-        s3_chunk_size, s3_prefix=None, s3_client=None):
+        filepath, local_prefix, s3_etag_compute, s3_bucket,
+        s3_prefix=None, s3_client=None):
     """Compare a file' size and etag between a local and a S3 copy.
     """
     LOGGER.debug('Comparing %s', filepath)
@@ -59,12 +56,7 @@ def compare(  # pylint: disable=too-many-arguments
         raise ComparisonFailed(
             'different size', filepath, size, s3_metadata['ContentLength'])
 
-    if size <= s3_chunk_size:
-        # Faster for small files
-        with open(local_path, 'rb') as fileobj:
-            local_etag = md5(fileobj.read()).hexdigest()
-    else:
-        local_etag = s3_etag.compute(local_path, s3_chunk_size, md5_executor)
+    local_etag = s3_etag_compute(local_path, size)
 
     if local_etag != remote_etag:
         raise ComparisonFailed(
