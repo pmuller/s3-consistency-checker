@@ -12,6 +12,8 @@ from s3_consistency_checker import shm
 
 
 LOGGER = logging.getLogger(__name__)
+DEFAULT_MESSAGE_FORMAT = '%(asctime)s.%(msecs)03d %(levelname)s %(message)s'
+DEFAULT_DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
 
 
 def parse_arguments():
@@ -40,14 +42,28 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def configure_logging(debug=False,
+                      message_format=DEFAULT_MESSAGE_FORMAT,
+                      date_format=DEFAULT_DATE_FORMAT,
+                      stream=sys.stdout):
+    """Configure logging.
+    """
+    level = logging.DEBUG if debug else logging.INFO
+    formatter = logging.Formatter(message_format, date_format)
+    handler = logging.StreamHandler(stream)
+    handler.setFormatter(formatter)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    root_logger.addHandler(handler)
+    logging.getLogger('botocore').setLevel(logging.WARNING)
+
+
 def main():
     """Main command line entry point.
     """
     arguments = parse_arguments()
 
-    logging.basicConfig(
-        level=logging.DEBUG if arguments.debug else logging.INFO)
-    logging.getLogger('botocore').setLevel(logging.WARNING)
+    configure_logging(arguments.debug)
 
     file_comparison_executor = ThreadPoolExecutor(
         arguments.file_comparison_workers)
