@@ -24,10 +24,10 @@ def parse_arguments():
         '--s3-chunk-size', metavar='N', default=8 * 1024 * 1024,
         help='Default: %(default)s')
     parser.add_argument(
-        '--file-comparison-workers', metavar='N', default=32,
+        '--file-comparison-workers', metavar='N', default=32, type=int,
         help='File comparison workers. Default: %(default)s')
     parser.add_argument(
-        '--md5-workers', metavar='N', default=64,
+        '--md5-workers', metavar='N', default=64, type=int,
         help='MD5 computation workers. Default: %(default)s')
     parser.add_argument('base_dir')
     parser.add_argument('s3_bucket')
