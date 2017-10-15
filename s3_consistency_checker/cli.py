@@ -7,6 +7,7 @@ import sys
 
 from s3_consistency_checker.comparison import compare, ComparisonFailed
 from s3_consistency_checker.s3_etag import S3EtagComputer
+from s3_consistency_checker.s3_url import S3URL
 from s3_consistency_checker.utils import find_files, human_readable_bytes
 from s3_consistency_checker import shm
 
@@ -35,9 +36,8 @@ def parse_arguments():
         '--max-shm-allocation', '-S', metavar='N', type=int,
         help='Maximum allocation of /dev/shm in bytes. '
              'Default: use all available space.')
-    parser.add_argument('base_dir')
-    parser.add_argument('s3_bucket')
-    parser.add_argument('s3_prefix', nargs='?')
+    parser.add_argument('local_dir')
+    parser.add_argument('s3_url', type=S3URL.parse)
 
     return parser.parse_args()
 
@@ -73,14 +73,13 @@ def main():
         shm.Allocator(arguments.max_shm_allocation))
 
     files = [
-        filepath.replace(arguments.base_dir, '')
-        for filepath in find_files(arguments.base_dir)]
+        filepath.replace(arguments.local_dir, '')
+        for filepath in find_files(arguments.local_dir)]
     file_count = len(files)
 
     LOGGER.info(
-        'Comparing %s files from %s with s3://%s/%s',
-        file_count, arguments.base_dir, arguments.s3_bucket,
-        arguments.s3_prefix or '')
+        'Comparing %s files from %s with %s',
+        file_count, arguments.local_dir, arguments.s3_url)
     LOGGER.debug(
         'File comparison workers: %s', arguments.file_comparison_workers)
 
@@ -88,8 +87,8 @@ def main():
 
     for filepath in files:
         jobs[filepath] = file_comparison_executor.submit(
-            compare, filepath, arguments.base_dir, s3_etag_compute,
-            arguments.s3_bucket, arguments.s3_prefix)
+            compare, filepath, arguments.local_dir, s3_etag_compute,
+            arguments.s3_url.bucket, arguments.s3_url.prefix)
 
     errors = 0
     total_bytes = 0
