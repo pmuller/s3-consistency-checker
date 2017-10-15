@@ -6,8 +6,8 @@ import logging
 import sys
 
 from s3_consistency_checker.comparison import compare, ComparisonFailed
-from s3_consistency_checker.s3_etag import S3EtagComputer
-from s3_consistency_checker.s3_url import S3URL
+from s3_consistency_checker.s3.etag import S3EtagComputer
+from s3_consistency_checker.s3.url import S3URL
 from s3_consistency_checker.utils import find_files, human_readable_bytes
 from s3_consistency_checker import shm
 
