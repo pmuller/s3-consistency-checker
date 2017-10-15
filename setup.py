@@ -36,7 +36,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Intended Audience :: Developers',
         'Development Status :: 5 - Production/Stable',
-        'Operating System :: Linux',
+        'Operating System :: POSIX :: Linux',
     ],
     keywords='s3',
     url='https://github.com/pmuller/s3-consistency-checker',
