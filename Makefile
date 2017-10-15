@@ -10,7 +10,7 @@ END_TARGET = @printf "\033[38;5;46mOK\033[0m\n\n"
 PYTEST_OPTS ?=
 
 .PHONY: help check_code_style check_pylint check_xenon \
-        check_lint check distclean clean dist
+        check_lint check_test check distclean clean dist
 
 help: ## Display list of targets and their documentation
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk \
@@ -37,7 +37,12 @@ check_xenon: ## Apply xenon checks (code complexity)
 check_lint: check_code_style check_pylint check_xenon ## Call check_code_style, check_pylint, check_xenon
 
 
-check: check_lint ## Call check_lint
+check_test: ## Apply py.test
+	$(call START_TARGET,Checking tests)
+	@$(ENV_RUN) py.test $(PYTEST_OPTS) $(PROJECT_NAME)
+
+
+check: check_lint check_test ## Call check_lint, check_test
 
 
 dist: ## Create a source distribution
