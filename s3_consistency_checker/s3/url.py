@@ -13,10 +13,10 @@ class S3URL(BaseS3URL):
     def parse(cls, string):
         """Parse an URL.
 
-        >>> assert S3URL.from_string('s3://foo').bucket == 'foo'
-        >>> assert S3URL.from_string('s3://foo').prefix is None
-        >>> assert S3URL.from_string('s3://foo/').prefix is None
-        >>> assert S3URL.from_string('s3://foo/bar').prefix == 'bar'
+        >>> assert S3URL.parse('s3://foo').bucket == 'foo'
+        >>> assert S3URL.parse('s3://foo').prefix == ''
+        >>> assert S3URL.parse('s3://foo/').prefix == ''
+        >>> assert S3URL.parse('s3://foo/bar').prefix == 'bar'
 
         """
         parsed = urllib.parse.urlparse(string)
@@ -27,10 +27,10 @@ class S3URL(BaseS3URL):
         elif parsed.netloc == '':
             raise ValueError('S3 bucket name undefined')
 
-        if parsed.path == '/':
-            prefix = ''
-        else:
-            prefix = parsed.path
+        prefix = parsed.path
+
+        if prefix and prefix[0] == '/':
+            prefix = prefix[1:]
 
         return cls(parsed.netloc, prefix)
 
